@@ -18,8 +18,6 @@ public class ButtonListPanel : MonoBehaviour
         preSize = (buttonPre.transform as RectTransform).sizeDelta;
     }
 
-
-
     public void AddButton(string name, UnityAction action) {
         
         GameObject go  = Instantiate<GameObject>(buttonPre);

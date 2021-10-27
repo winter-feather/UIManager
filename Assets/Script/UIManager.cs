@@ -239,3 +239,7 @@ public class ResourcesManager : SingleManager<ResourcesManager>
     }
 
 }
+
+public class LogManager : SingleManager<LogManager> { 
+
+}

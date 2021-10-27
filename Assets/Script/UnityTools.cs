@@ -120,18 +120,21 @@ namespace WinterFeather
                     instance = FindObjectOfType(typeof(T)) as T;
                     if (instance == null)
                     {
-                        instance = new GameObject(typeof(T).ToString()).AddComponent<T>();
+                        new GameObject(typeof(T).ToString()).AddComponent<T>();
                     }
                 }
                 return instance;
             }
         }
 
+
+
         protected void Awake() {
             Init();
         }
 
         void Init() {
+            instance = this as T;
             //this.gameObject.hideFlags = HideFlags.HideInHierarchy;
             //this.hideFlags = HideFlags.HideInInspector;
         }
