@@ -23,8 +23,8 @@ public class APITest : MonoBehaviour
 
         UIManager.Instance.OpenPlane(PanelStyle.ButtonListPanel, new Vector3(350, Screen.height * 0.5f + 500, 0));
         ButtonListPanel bl = UIManager.Instance.activePlane[PanelStyle.ButtonListPanel].GetComponent<ButtonListPanel>();
-        bl.AddButton("打开颜色面板", () => UIManager.Instance.OpenPlane(PanelStyle.TestPanel, new Vector3(350, Screen.height * 0.5f + 500, 0)));
-        bl.AddButton("打开提示面板", () => UIManager.Instance.OpentTipsPanel("测试", "测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试"));
+        bl.AddButton("打开颜色面板", () => UIManager.Instance.OpenPlane(PanelStyle.TestPanel));
+        bl.AddButton("打开提示面板", () => UIManager.Instance.OpenTipsPanel("测试", "测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试"));
         bl.rectTransform.pivot = new Vector2(0.5f, 0);
         bl.rectTransform.anchoredPosition = new Vector2(Screen.width*0.5f, -Screen.height+10);
 
@@ -40,32 +40,21 @@ public class APITest : MonoBehaviour
         parms.Add("schoolId", "22144");
         parms.Add("itemValue", "this test info");
         Dictionary<string, string> header = new Dictionary<string, string>();
-        //header.Add("Content-Type", "application/json");
-        BestHttpRquest.Instance.BestHttpPost<StringResult>(homeUrl + postUrl, parms, TestPostAction, header);
+        header.Add("Content-Type", "application/json");
+        BestHttpRquest.Instance.BestHttpPost(homeUrl + postUrl, parms, null, header);
     }
 
     void TestGet() {
         Dictionary<string, string> parms = new Dictionary<string, string>();
         parms.Add("schoolId", "22144");
         Dictionary<string, string> header = new Dictionary<string, string>();
-        //header.Add("Content-Type", "application/json");
-        BestHttpRquest.Instance.BestHttpGet<StringResult>(homeUrl + getUrl, parms, TestGetAction, header);
+        header.Add("Content-Type", "application/json");
+        BestHttpRquest.Instance.BestHttpGet(homeUrl + getUrl, parms, null, header);
     }
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-
-        }
     }
 
-    public void TestGetAction(StringResult s, HTTPRequest request, HTTPResponse response) {
-        //Debug.LogError(s);
-    }
 
-    public void TestPostAction(StringResult s, HTTPRequest request, HTTPResponse response)
-    {
-        //Debug.LogError(s);
-    }
 }

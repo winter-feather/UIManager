@@ -54,11 +54,11 @@ public class GridContainerPanel : MonoBehaviour
 
     void SoloveTarget()
     {
-        Debug.LogError("CellOri:" + cellOriSize.x);
-        Debug.LogError("Width:" + width);
-        Debug.LogError("PreSize:" + preSize);
+        //Debug.LogError("CellOri:" + cellOriSize.x);
+        //Debug.LogError("Width:" + width);
+        //Debug.LogError("PreSize:" + preSize);
         cellTargetSize.y = ( Mathf.Ceil( cellOriSize.x / width)) * preSize.y;
-        Debug.LogError(cellTargetSize);
+        //Debug.LogError(cellTargetSize);
     }
     public void AddButton(string name, UnityAction action)
     {

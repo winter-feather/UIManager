@@ -21,16 +21,39 @@ using WinterFeather;
 //---------------------------------------------------------------------------------------------------------------//
 public class UIManager : SingleManager<UIManager>
 {
-    public Canvas canvas;
+    private Canvas canvas;
+    public Canvas canvas3D;
     public Dictionary<PanelStyle, GameObject> activePlane;
-    GameObject btnNodePre;
+
+    public Canvas Canvas
+    {
+        get
+        {
+            if (canvas == null)
+            {
+                InitCanvas();
+            }
+            return canvas;
+        }
+    }
 
     new void Awake()
     {
         base.Awake();
-        canvas = GameObject.FindObjectOfType<Canvas>();
-        btnNodePre = Resources.Load<GameObject>("ButtonNode");
+        InitCanvas();
         activePlane = new Dictionary<PanelStyle, GameObject>();
+    }
+    void InitCanvas()
+    {
+        if (!canvas) canvas = GameObject.FindObjectOfType<Canvas>();
+        canvas.sortingOrder = 1;
+        if (!canvas)
+        {
+            GameObject canvasGO = new GameObject("Canvas");
+            canvas = canvasGO.AddComponent<Canvas>();
+            canvasGO.AddComponent<CanvasScaler>();
+            canvasGO.AddComponent<GraphicRaycaster>();
+        }
     }
     public void OpenPlane(PanelStyle panel,Vector3? pos = null)
     {
@@ -48,30 +71,28 @@ public class UIManager : SingleManager<UIManager>
         }
     }
 
+
+
     //---------------------------------------------------------------------------------------------------------------//
     //-------------------------------------------InitPlaneStart------------------------------------------------------//
     //---------------------------------------------------------------------------------------------------------------//
 
     public GameObject InitPlane(PanelStyle panel, Vector3? pos = null)
     {
-        Debug.LogError("initPlane:" + panel);
+        //Debug.LogError("initPlane:" + panel);
         GameObject go = null;
         switch (panel)
         {
             case PanelStyle.TestPanel:
-                go = InitTestPanel(pos);
+            case PanelStyle.TipsPanel:
+            case PanelStyle.ButtonListPanel:
+                go = InitPanel(panel.ToString(), pos);
                 break;
             case PanelStyle.LoadPanel:
                 break;
             case PanelStyle.SavePanel:
                 break;
-            case PanelStyle.TipsPanel:
-                go = InitTipsPanel(pos);
-                break;
-            case PanelStyle.ButtonListPanel:
-                go = InitButtonListPanel(pos);
-                break;
-
+             
             case PanelStyle.CellPanelA:
                 go = InitCellPanelA(pos);
                 break;
@@ -81,71 +102,34 @@ public class UIManager : SingleManager<UIManager>
         }
         return go;
     }
-    public GameObject InitCellPanelA(Vector3? pos) {
-        GameObject go = ResourcesManager.Instance.Load(PanelStyle.ContainerPanel.ToString());
-        go.name = "InitCellPanelA";
-        go.transform.SetParent(canvas.transform);
+    public GameObject InitPanel(string name,Vector3? pos = null) {
+        GameObject go = ResourcesManager.Instance.Load(name);
+        go.name = name;
+        go.transform.SetParent(Canvas.transform);
         go.transform.localScale = Vector3.one;
-        go.transform.position = pos.Value;
+        if (pos!=null)
+        {
+            go.transform.position = pos.Value;
+        }
+        else
+        {
+            go.transform.position = new Vector3(Screen.width * 0.5f, Screen.height * 0.5f,0);
+        }
+        return go;
+    }
+
+    public GameObject InitCellPanelA(Vector3? pos) {
+        GameObject go = InitPanel(PanelStyle.ContainerPanel.ToString(), pos);
         go.GetComponent<GridContainerPanel>().closeBtn.onClick.AddListener(()=>ClosePlane(PanelStyle.CellPanelA));
         return go;
     }
 
     public GameObject InitCellPaneB(Vector3? pos) {
-        GameObject go = ResourcesManager.Instance.Load(PanelStyle.ContainerPanel.ToString());
-        go.name = "InitCellPaneB";
-        go.transform.SetParent(canvas.transform);
-        go.transform.localScale = Vector3.one;
-        go.transform.position = pos.Value;
+        GameObject go = InitPanel(PanelStyle.ContainerPanel.ToString(), pos);
         go.GetComponent<GridContainerPanel>().closeBtn.onClick.AddListener(() => ClosePlane(PanelStyle.CellPaneB));
         return go;
     }
 
-    public GameObject InitButtonListPanel(Vector3? pos) {
-        GameObject go = ResourcesManager.Instance.Load(PanelStyle.ButtonListPanel.ToString());
-        go.name = "ButtonListPanel";
-        go.transform.SetParent(canvas.transform);
-        go.transform.localScale = Vector3.one;
-        go.transform.position = pos.Value;
-        return go;
-    }
-    public GameObject InitTestPanel(Vector3? pos)
-    {
-        GameObject go = ResourcesManager.Instance.Load(PanelStyle.TestPanel.ToString());
-        go.name = "TestPanel";
-        go.transform.SetParent(canvas.transform);
-        go.transform.localScale = Vector3.one;
-        go.transform.position = pos.Value;
-        return go;
-    }
-
-    public GameObject InitTipsPanel(Vector3? pos)
-    {
-        GameObject go = ResourcesManager.Instance.Load(PanelStyle.TipsPanel.ToString());
-        go.name = "TipsPanel";
-        //Debug.LogError(go == null);
-        go.transform.SetParent(canvas.transform);
-        go.transform.localScale = Vector3.one;
-        go.transform.position = pos.Value;
-        return go;
-    }
-    public GameObject InitLoadPanel(Vector3? pos)
-    {
-        return null;
-    }
-    public GameObject InitSavePanel(Vector3? pos)
-    {
-        return null;
-    }
-    public GameObject InitCarModeSetPanel(Vector3? pos)
-    {
-        GameObject go;
-        go = Instantiate<GameObject>(Resources.Load<GameObject>(PanelStyle.DrivinModePanel.ToString()));
-        go.transform.SetParent(canvas.transform);
-        go.transform.localPosition = new Vector3(380, 525, 0);
-
-        return go;
-    }
 
     //---------------------------------------------------------------------------------------------------------------//
     //-------------------------------------------InitPlaneEnd--------------------------------------------------------//
@@ -213,11 +197,11 @@ public class UIManager : SingleManager<UIManager>
     //---------------------------------------------------------------------------------------------------------------//
     //------------------------------------SettingWhithOpenPlaneStart-------------------------------------------------//
     //---------------------------------------------------------------------------------------------------------------//
-    public void OpentTipsPanel(params string[] info) {
+    public void OpenTipsPanel(string title,string content) {
         UIManager.Instance.OpenPlane(PanelStyle.TipsPanel, new Vector3(350, Screen.height * 0.5f + 0, 0));
         TipsPanel tp = activePlane[PanelStyle.TipsPanel].GetComponentInChildren<TipsPanel>();
-        tp.SetTitle(info[0]);
-        tp.SetContent(info[1]);
+        tp.SetTitle(title);
+        tp.SetContent(content);
     }
 
     //---------------------------------------------------------------------------------------------------------------//
@@ -251,7 +235,6 @@ public class ResourcesManager : SingleManager<ResourcesManager>
 {
     public GameObject Load(string resourceName)
     {
-        Debug.LogError(resourceName);
         return Instantiate<GameObject>(Resources.Load<GameObject>(resourceName));
     }
 

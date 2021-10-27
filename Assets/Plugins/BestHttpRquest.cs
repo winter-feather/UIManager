@@ -21,16 +21,11 @@ public class BestHttpRquest
             return instance;
         }
     }
-
-    public string baseUrl;
-    public bool isShowInfo;
-
-    public void BestHttpGet<T>(string url, Dictionary<string, string> parms, Action<T, HTTPRequest, HTTPResponse> callback, Dictionary<string, string> header = null)
+    public void BestHttpGet(string url, Dictionary<string, string> parms, OnRequestFinishedDelegate callback, Dictionary<string, string> header = null)
     {
         if (parms != null)
         {
             url += "?";
-            int c = 0;
             foreach (var item in parms)
             {
                 url += item.Key + "=" + item.Value + "&";
@@ -39,30 +34,8 @@ public class BestHttpRquest
         }
         Debug.Log("<color=orange>Aaron Tips:BestHttp Request Url=</color>" + url);
         HTTPRequest req = new HTTPRequest(new Uri(url), HTTPMethods.Get);
-        req.Callback += (HTTPRequest request, HTTPResponse response) =>
-        {
-            if (response == null)
-            {
-                Debug.Log("net is not content");
-            }
-            else
-            {
-                if (response.IsSuccess && response.StatusCode == 200)
-                {
-                    Debug.Log("IsSuccess:" + request.Uri);
-                    Debug.Log("response:" + response.DataAsText);
-                    T dataObject = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.DataAsText);
-                    callback?.Invoke(dataObject, request, response);
-                    //OnReceivedSchoolScene();
-                }
-                else
-                {
-                    Debug.Log("failureCode:" + response.StatusCode);
-                    Debug.Log("failureUrl:" + request.Uri);
-                    Debug.Log("response:" + response.Message);
-                }
-            }
-        };
+        req.Callback += MessgeTips;
+        req.Callback += callback;
         req.DisableCache = true;
         if (header != null)
         {
@@ -73,79 +46,84 @@ public class BestHttpRquest
         }
         req.Send();
     }
-    public void BestHttpPost<T>(string url, Dictionary<string, string> parms, Action<T, HTTPRequest, HTTPResponse> callback, Dictionary<string, string> header = null)
+    public void BestHttpGet(string url, Dictionary<string, string> parms, Dictionary<string, byte[]> bparms, OnRequestFinishedDelegate callback, Dictionary<string, string> header = null)
     {
-        //Debug.Log("<color=orange>Aaron Tips:BestHttp Request Url=</color>" + url);
-        HTTPRequest request = new HTTPRequest(new Uri(url), HTTPMethods.Post);
-        request.Callback += (HTTPRequest req, HTTPResponse response) =>
+        if (parms != null)
         {
-            if (response == null)
+            url += "?";
+            foreach (var item in parms)
             {
-                Debug.Log("net is not content");
+                url += item.Key + "=" + item.Value + "&";
             }
-            else
+            url = url.TrimEnd(' ', '&');
+        }
+        Debug.Log("<color=orange>Aaron Tips:BestHttp Request Url=</color>" + url);
+        HTTPRequest req = new HTTPRequest(new Uri(url), HTTPMethods.Get);
+        req.Callback += MessgeTips;
+        req.Callback += callback;
+        req.DisableCache = true;
+        if (header != null)
+            foreach (var item in header)
             {
-                if (response.IsSuccess && response.StatusCode == 200)
-                {
-                    Debug.Log("success:" + req.Uri);
-                    Debug.Log("response:" + response.DataAsText);
-                    //
-                    T dataObject = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.DataAsText);
-                    callback?.Invoke(dataObject, req, response);
-                }
-                else
-                {
-                    Debug.Log("failure:" + response.StatusCode);
-                    Debug.Log("failureurl:" + req.Uri);
-                    Debug.Log("response:" + response.Message);
-                }
+                req.AddHeader(item.Key, item.Value);
             }
-        }; ;
-        request.DisableCache = true;
+        if (bparms != null)
+            foreach (var item in bparms)
+            {
+                req.AddBinaryData(item.Key, item.Value);
+            }
+        if (parms != null)
+            foreach (var item in parms)
+            {
+                req.AddField(item.Key, item.Value);
+            }
+        req.Send();
+    }
+    public void BestHttpGet(string url, string parms, OnRequestFinishedDelegate callback, Dictionary<string, string> header = null)
+    {
+        Debug.Log("<color=orange>Aaron Tips:BestHttp Request Url=</color>" + url);
+        HTTPRequest req = new HTTPRequest(new Uri(url), HTTPMethods.Get);
+        req.Callback += MessgeTips;
+        req.Callback += callback;
+        req.DisableCache = true;
         if (header != null)
         {
             foreach (var item in header)
             {
-                request.AddHeader(item.Key, item.Value);
+                req.AddHeader(item.Key, item.Value);
+            }
+        }
+        req.RawData = System.Text.Encoding.UTF8.GetBytes(parms);
+        req.Send();
+    }
+    public void BestHttpPost(string url, Dictionary<string, string> parms, OnRequestFinishedDelegate callback, Dictionary<string, string> header = null)
+    {
+        //Debug.Log("<color=orange>Aaron Tips:BestHttp Request Url=</color>" + url);
+        HTTPRequest req = new HTTPRequest(new Uri(url), HTTPMethods.Post);
+        req.Callback += MessgeTips;
+        req.Callback += callback;
+        req.DisableCache = true;
+        if (header != null)
+        {
+            foreach (var item in header)
+            {
+                req.AddHeader(item.Key, item.Value);
             }
         }
         if (parms != null)
         {
             foreach (var item in parms)
             {
-                request.AddField(item.Key, item.Value);
+                req.AddField(item.Key, item.Value);
             }
         }
-        request.Send();
+        req.Send();
     }
-    public void BestHttpPost<T>(string url, Dictionary<string, string> parms, Dictionary<string, byte[]> bparms, Action<T, HTTPRequest, HTTPResponse> callback, Dictionary<string, string> header = null)
+    public void BestHttpPost(string url, Dictionary<string, string> parms, Dictionary<string, byte[]> bparms, OnRequestFinishedDelegate callback, Dictionary<string, string> header = null)
     {
         HTTPRequest request = new HTTPRequest(new Uri(url), HTTPMethods.Post);
-        request.Callback += (HTTPRequest req, HTTPResponse response) =>
-        {
-            if (response == null)
-            {
-                Debug.Log("net is not content");
-            }
-            else
-            {
-                if (response.IsSuccess && response.StatusCode == 200)
-                {
-                    Debug.Log("success:" + req.Uri);
-                    Debug.Log("response:" + response.DataAsText);
-                    T dataObject = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.DataAsText);
-                    callback?.Invoke(dataObject, req, response);
-                }
-                else
-                {
-                    Debug.Log("failure:" + response.StatusCode);
-                    Debug.Log("success:" + req.Uri);
-                    Debug.Log("response:" + response.Message);
-                }
-            }
-        }; 
+        request.Callback += MessgeTips;
         request.DisableCache = true;
-
         foreach (var item in bparms)
         {
             request.AddBinaryData(item.Key, item.Value);
@@ -160,52 +138,73 @@ public class BestHttpRquest
         }
         request.Send();
     }
-    public void BestHttpPost<T>(string url, string parms, Action<T, HTTPRequest, HTTPResponse> callback, Dictionary<string, string> header = null)
+    public void BestHttpPost(string url, string parms, OnRequestFinishedDelegate callback, Dictionary<string, string> header = null)
     {
         HTTPRequest request = new HTTPRequest(new Uri(url), HTTPMethods.Post);
-        request.Callback += (HTTPRequest req, HTTPResponse response) =>
-        {
-            if (response == null)
-            {
-                Debug.Log("net is not content");
-            }
-            else
-            {
-                if (response.IsSuccess && response.StatusCode == 200)
-                {
-                    Debug.Log("success:" + req.Uri);
-                    Debug.Log("p:" + System.Text.Encoding.UTF8.GetString(req.RawData));
-                    Debug.Log("response:" + response.DataAsText);
-                    T dataObject = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(response.DataAsText);
-                    callback?.Invoke(dataObject, req, response);
-                }
-                else
-                {
-                    Debug.Log("failure:" + response.StatusCode);
-                    Debug.Log("failure:" + req.Uri);
-                    Debug.Log("p:" +System.Text.Encoding.UTF8.GetString(req.RawData));
-                    Debug.Log(":" + req.Uri);
-                    Debug.Log("response:" + response.Message);
-                }
-            }
-        }; 
+        request.Callback += MessgeTips;
+        request.Callback += callback;
         request.DisableCache = true;
-        if (header!=null)
+        if (header != null)
         {
             foreach (var item in header)
             {
                 request.AddHeader(item.Key, item.Value);
             }
         }
-      
+
         request.RawData = System.Text.Encoding.UTF8.GetBytes(parms);
         request.Send();
     }
     #endregion
-}
 
-public class StringResult {
-    int code;
-    string ok;
-    string result;
+    #region Message
+    public T JsonConvert<T>(string v)
+    {
+        return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(v);
+    }
+    public void MessageNotContent(HTTPRequest req, HTTPResponse respon)
+    {
+        Debug.Log("net is not content");
+        //if (Application.platform == RuntimePlatform.Android)
+        //{
+        //    CEditorManager.GetAndoridInstance().Call("showUnityToast", @"无网络");
+        //}
+    }
+    public void MessageNetFailure(HTTPRequest req, HTTPResponse respon)
+    {
+        Debug.Log("failure:" + respon.StatusCode);
+        Debug.Log("success:" + req.Uri);
+        Debug.Log("response:" + respon.Message);
+        //if (Application.platform == RuntimePlatform.Android)
+        //{
+        //    CEditorManager.GetAndoridInstance().Call("showUnityToast", @"网络异常");
+        //}
+    }
+    public void MessageSuccess(HTTPRequest req, HTTPResponse respon)
+    {
+        Debug.Log("IsSuccess:" + req.Uri);
+        Debug.Log("response:" + respon.DataAsText);
+    }
+    public void MessgeTips(HTTPRequest req, HTTPResponse respon)
+    {
+        if (respon == null)
+        {
+            MessageNotContent(req, respon);
+        }
+        else
+        {
+            if (respon.IsSuccess && respon.StatusCode == 200)
+            {
+                Debug.Log("success:" + req.Uri);
+                Debug.Log("response:" + respon.DataAsText);
+            }
+            else
+            {
+                Debug.Log("failure:" + respon.StatusCode);
+                Debug.Log("success:" + req.Uri);
+                Debug.Log("response:" + respon.Message);
+            }
+        }
+    }
+    #endregion
 }
