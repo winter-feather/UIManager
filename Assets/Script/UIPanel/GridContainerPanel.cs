@@ -4,10 +4,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 
-public class GridContainerPanel : MonoBehaviour
+public class GridContainerPanel : BasicPanel
 {
     public GameObject cellPre;
-    public RectTransform rectTransform, titleRT, cellContentRT, cellBGRT;
+    public RectTransform titleRT, cellContentRT, cellBGRT;
     public GridLayoutGroup cellglg;
     public Text titleText;
     Vector2 cellOriSize, cellTargetSize, preSize, titleSize, cellContentSize;
@@ -18,7 +18,6 @@ public class GridContainerPanel : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        rectTransform = transform as RectTransform;
         preSize = (cellPre.transform as RectTransform).sizeDelta;
        
         cellContentSize = Vector2.zero;
@@ -43,7 +42,6 @@ public class GridContainerPanel : MonoBehaviour
 
        
     }
-
     void InitTitle(string name) {
         titleText = titleRT.GetComponentInChildren<Text>();
         titleText.text = name;
@@ -51,7 +49,6 @@ public class GridContainerPanel : MonoBehaviour
         titleSize.x = width;
         titleRT.sizeDelta = titleSize;
     }
-
     void SoloveTarget()
     {
         //Debug.LogError("CellOri:" + cellOriSize.x);

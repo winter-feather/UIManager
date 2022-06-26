@@ -5,27 +5,38 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class ButtonListPanel : MonoBehaviour
+public class ButtonListPanel : BasicPanel
 {
     public GameObject buttonPre;// Start is called before the first frame update
-    public RectTransform rectTransform;
     Vector2 size;
     Vector2 preSize;
     private void Awake()
     {
-        rectTransform = transform as RectTransform;
-        size = rectTransform.sizeDelta;
+        size = RectTransform.sizeDelta;
         preSize = (buttonPre.transform as RectTransform).sizeDelta;
     }
-
     public void AddButton(string name, UnityAction action) {
         
         GameObject go  = Instantiate<GameObject>(buttonPre);
         size.x += preSize.x; 
-        rectTransform.sizeDelta = size;
+        RectTransform.sizeDelta = size;
         go.GetComponentInChildren<Text>().text = name;
         go.transform.SetParent(transform);
         go.transform.localScale = Vector3.one;
         go.GetComponent<Button>().onClick.AddListener(action);
     }
+
+    public override void SetParmes(PanelParmes parmes)
+    {
+        ButtListPanelOptions p = parmes as ButtListPanelOptions;
+        for (int i = 0; i < p.data.Length; i++)
+        {
+            AddButton(p.data[i], p.actions[i]);
+        }
+    }
+}
+
+public class ButtListPanelOptions : PanelParmes {
+    public string[] data;
+    public UnityAction[] actions;
 }

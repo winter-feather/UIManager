@@ -354,6 +354,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f87b90be78465d419238579eb7e7695, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rectTransform: {fileID: 4594900975819560946}
+  manager: {fileID: 0}
   images: []
   imagesContainer: {fileID: 0}
   oriColor: []

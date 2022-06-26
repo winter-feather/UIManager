@@ -3,58 +3,50 @@ using System.Collections.Generic;
 using UnityEngine;
 using BestHTTP;
 using Newtonsoft.Json;
+using UnityEngine.Events;
+
 public class APITest : MonoBehaviour
 {
-    public string homeUrl = @"http://kaoshijxedttest.58v5.cn";//"https://kaoshiapi.jxedt.com/robot";
-    public string getUrl = "/robot/getImplementationTools";
-    public string postUrl = "/robot/saveImplementationTools";
-
     // Start is called before the first frame update
     void Start()
     {
-        homeUrl = @"http://kaoshijxedttest.58v5.cn";
-        TestPost();
-        TestGet();
+        ButtListPanelOptions p = new ButtListPanelOptions();
+        p.data = new string[] { "1", "2", "3", "4", "5" };
+        p.actions = new UnityAction[5];
+        for (int i = 0; i < p.data.Length; i++)
+        {
+            int id = i;
+            p.actions[i] = () =>
+            {
+                Debug.LogError(id);
+            };
+        }
+     
+        UIManager.Instance.OpenPlane<ButtonListPanel,ButtListPanelOptions>(PanelStyle.ButtonListPanel, Vector3.zero, 0, p);
+        UIManager.Instance.OpenPlane<TestPanel, ButtListPanelOptions>(PanelStyle.TestPanel, Vector3.zero, 0, null);
+        UIManager.Instance.OpenPlane<TipsPanel, ButtListPanelOptions>(PanelStyle.TipsPanel, Vector3.zero, 0, null);
 
-        //可以转换正常的串
-        //string a = Newtonsoft.Json.JsonConvert.DeserializeObject<string>(@"110中文");
-        //无法转换Json的串
-        //a = Newtonsoft.Json.JsonConvert.DeserializeObject<string>("{key:value}");
-
-        UIManager.Instance.OpenPlane(PanelStyle.ButtonListPanel, new Vector3(350, Screen.height * 0.5f + 500, 0));
-        ButtonListPanel bl = UIManager.Instance.activePlane[PanelStyle.ButtonListPanel].GetComponent<ButtonListPanel>();
-        bl.AddButton("打开颜色面板", () => UIManager.Instance.OpenPlane(PanelStyle.TestPanel));
-        bl.AddButton("打开提示面板", () => UIManager.Instance.OpenTipsPanel("测试", "测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试"));
-        bl.rectTransform.pivot = new Vector2(0.5f, 0);
-        bl.rectTransform.anchoredPosition = new Vector2(Screen.width*0.5f, -Screen.height+10);
-
-        UIManager.Instance.OpenPlane(PanelStyle.CellPanelA, new Vector3(Screen.width-100, Screen.height * 0.5f + 350, 0));
-        UIManager.Instance.OpenPlane(PanelStyle.CellPaneB, new Vector3(50, Screen.height * 0.5f + 350, 0));
-
-        //UIManager.Instance.OpenPlane(PanelStyle.TipsPanel,new Vector3(350,Screen.height*0.5f+0,0));
-
+        UIManager.Instance.OpenPlane<ButtonListPanel,ButtListPanelOptions>(PanelStyle.ButtonListPanel, Vector3.zero, 1, p);
     }
-
-    void TestPost() {
-        Dictionary<string, string> parms = new Dictionary<string, string>();
-        parms.Add("schoolId", "22144");
-        parms.Add("itemValue", "this test info");
-        Dictionary<string, string> header = new Dictionary<string, string>();
-        header.Add("Content-Type", "application/json");
-        BestHttpRquest.Instance.BestHttpPost(homeUrl + postUrl, parms, null, header);
-    }
-
-    void TestGet() {
-        Dictionary<string, string> parms = new Dictionary<string, string>();
-        parms.Add("schoolId", "22144");
-        Dictionary<string, string> header = new Dictionary<string, string>();
-        header.Add("Content-Type", "application/json");
-        BestHttpRquest.Instance.BestHttpGet(homeUrl + getUrl, parms, null, header);
-    }
-    // Update is called once per frame
-    void Update()
+    int pivotID = 0;
+    private void Update()
     {
-    }
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            UIManager.Instance.ClosePlane(PanelStyle.ButtonListPanel);
+        }
 
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            UIManager.Instance.activePlane[UIManager.Instance.GetPanelID(PanelStyle.ButtonListPanel)].GetComponent<ButtonListPanel>().SetPivot((BasicPanel.Pivot)(pivotID++ % 5));
+            UIManager.Instance.OpenPlane<ButtonListPanel, ButtListPanelOptions>(PanelStyle.ButtonListPanel,Vector2.zero);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+
+            UIManager.Instance.activePlane[UIManager.Instance.GetPanelID(PanelStyle.ButtonListPanel)].GetComponent<ButtonListPanel>().AddButton("New", () => { Debug.LogError("new Button"); });
+        }
+    }
 
 }

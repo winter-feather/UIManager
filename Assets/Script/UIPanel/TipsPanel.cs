@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TipsPanel : MonoBehaviour
+public class TipsPanel : BasicPanel
 {
     public Button applyBtn;
     Text title, content;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TestPanel : MonoBehaviour
+public class TestPanel : BasicPanel
 {
     public Image[] images;
     public Transform imagesContainer;
